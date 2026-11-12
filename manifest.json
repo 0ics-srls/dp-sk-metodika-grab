@@ -1,0 +1,62 @@
+{
+  "specVersion": "1.1",
+  "type": "stdin",
+  "name": "dp-sk-metodika-grab",
+  "version": "0.1.0",
+  "description": "Downloads Slovak guidance PDFs into <dir>: Financna sprava section listings and the MF SR, NBS and UVO pdf sites. Writes sidecar files and _coverage.json for the convert class.",
+  "author": "open-lex-it",
+  "authentication": false,
+  "actions": {
+    "execute": {
+      "description": "For each item fetch its listing and write the PDFs, a sidecar per document and _coverage.json into <dir>/<itemId>. Restart-safe. UVO needs uvoRobotsAck. dryRun: no request.",
+      "input": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "the items to download, as reported by the detect step",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": { "type": "string", "minLength": 1 },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "kind": { "enum": ["fs", "pdf"] },
+                    "itemId": { "type": "string" },
+                    "version": { "type": "string" },
+                    "section": { "type": "string" },
+                    "site": { "type": "string" },
+                    "year": { "type": "integer" },
+                    "leaf": { "type": "string" }
+                  },
+                  "required": ["kind", "itemId"]
+                }
+              },
+              "required": ["key", "meta"]
+            }
+          },
+          "dir": { "type": "string", "description": "directory to download into" },
+          "only": { "type": "array", "description": "sample filter: [{section|site, docId}] with docId = source_id" },
+          "maxDocs": { "type": "integer", "minimum": 1, "description": "sample filter: documents per item, ascending source_id" },
+          "delaySeconds": { "type": "number", "minimum": 0.6, "description": "pause between requests" },
+          "verifyTls": { "type": "boolean" },
+          "maxPdfBytes": { "type": "integer", "minimum": 1, "description": "skip a PDF larger than this (default 40 MB)" },
+          "baseUrl": { "type": "string", "description": "replay server origin that stands in for all four sites" },
+          "uvoRobotsAck": { "type": "boolean", "description": "must be true to grab uvo-metodicke (robots.txt of uvo.gov.sk disallows crawlers, decision D141)" },
+          "dryRun": { "type": "boolean", "description": "plan only: no request, nothing written" }
+        },
+        "required": ["items", "dir"]
+      },
+      "output": {
+        "type": "object",
+        "description": "{ listed, taken, skipped, skipped_existing, files: [...] }"
+      }
+    },
+    "terminate": {
+      "description": "Stop and clean up.",
+      "input": { "type": "object", "properties": {} }
+    }
+  },
+  "execution": { "timeout": 7200, "memoryLimit": "512Mi", "cpuLimit": "1.0" }
+}
