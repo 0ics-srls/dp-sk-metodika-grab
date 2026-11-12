@@ -86,4 +86,7 @@ def test_should_give_715_distinct_ids_when_the_recorded_mfsr_urls_are_slugged() 
 def test_should_make_a_directory_name_of_an_item_id() -> None:
     assert ids.safe_name("fs:metodicke-pokyny") == "fs_metodicke-pokyny"
     assert ids.safe_name("pdf:mfsr-spravodajca:2025") == "pdf_mfsr-spravodajca_2025"
+    assert ids.safe_name("..") == "item"
+    assert ids.safe_name("../../outside") == "_.._outside"
+    assert ids.safe_name("a/../b") == "a_.._b"
     assert ids.safe_name("pdf:uvo-metodicke:vseobecne-metodicke-usmernenia-k-zakonu-c-343-2015-zz").startswith("pdf_uvo-metodicke_")

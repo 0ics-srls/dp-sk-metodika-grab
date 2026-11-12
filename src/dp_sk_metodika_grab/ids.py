@@ -49,5 +49,8 @@ def is_safe_id(value: str) -> bool:
 
 
 def safe_name(item_id: str) -> str:
-    """Directory name of an item id (convert and ingest derive the same name): ``fs:metodicke-pokyny`` -> ``fs_metodicke-pokyny``."""
-    return _UNSAFE_NAME.sub("_", item_id.replace(" ", "-"))
+    """Directory name of an item id (convert and ingest derive the same name): ``fs:metodicke-pokyny`` -> ``fs_metodicke-pokyny``.
+
+    Runs outside ``[A-Za-z0-9._-]`` become ``_``; leading and trailing dots are dropped so that a hostile id cannot name ``..``.
+    """
+    return _UNSAFE_NAME.sub("_", item_id.replace(" ", "-")).strip(".") or "item"  # never "." or "..": the directory stays below ``dir``
