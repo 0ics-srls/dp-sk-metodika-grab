@@ -1,4 +1,4 @@
-"""Document identity (P81b-05): ``source_id`` is the slug of the PDF URL path, the same rule in grab and convert (identical copy, never imported).
+"""Document identity (P81b-05): ``source_id`` is the slug of the PDF URL path. The only rule: the convert class trusts the sidecar (P81b-34).
 
 Rule: percent-decode the path, drop the query and the fragment, drop a trailing ``.pdf``, join the non-empty segments with ``_``, replace every run of
 characters outside ``[A-Za-z0-9_.-]`` and the Latin-1/Extended letters by ``_``, strip leading/trailing ``_`` and ``.``. Short forms: everything before

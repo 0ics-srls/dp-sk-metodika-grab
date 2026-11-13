@@ -1,4 +1,4 @@
-"""source_id (P81b-05): slug of the PDF URL path, identical rule in grab and convert; the 715 recorded MF SR URLs give 715 distinct ids (legacy: 645)."""
+"""source_id (P81b-05): slug of the PDF URL path, the only rule (convert trusts the sidecar, P81b-34); the 715 recorded MF SR URLs give 715 distinct ids (legacy: 645)."""
 from __future__ import annotations
 
 import json
