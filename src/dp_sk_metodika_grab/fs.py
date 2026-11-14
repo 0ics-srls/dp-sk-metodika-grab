@@ -8,7 +8,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import quote, urljoin, urlsplit, urlunsplit
 
 from bs4 import BeautifulSoup
 
@@ -70,12 +70,22 @@ class FsDocument:
     category: str | None = None
     published: str | None = None
     listing_url: str | None = None
+    raw_url: str | None = None  # the href as the page wrote it: the legacy doc_id is derived from it, so it does not change with the encoding (P84, C16)
 
     @property
     def doc_id(self) -> str:
         if self.code is not None:
             return f"{self.number}_{self.dept}_{self.year}_{self.doc_type}"
-        return slug(url_path_stem(self.pdf_url))
+        return slug(url_path_stem(self.raw_url or self.pdf_url))
+
+
+_PATH_SAFE = "/%:@!$&'()*+,;=~"  # RFC 3986 path characters stay, a space and non-ASCII characters are encoded, existing %XX stay (no double encoding)
+
+
+def encode_url(url: str) -> str:
+    """The URL with its path percent-encoded (``a b.pdf`` -> ``a%20b.pdf``). Already encoded input is returned unchanged. ``source_id`` is not affected: it decodes the path first."""
+    parts = urlsplit(url)
+    return urlunsplit((parts.scheme, parts.netloc, quote(parts.path, safe=_PATH_SAFE), parts.query, parts.fragment))
 
 
 def make_document(section: str, title: str, pdf_url: str) -> FsDocument:
@@ -98,7 +108,7 @@ def make_document(section: str, title: str, pdf_url: str) -> FsDocument:
     matched = _DATE.search(parts[-1] if parts else "")
     if matched:
         published = f"{matched.group(1)}-{matched.group(2)}-{matched.group(3)}"
-    return FsDocument(section, title, pdf_url, code, number, dept, year, doc_type, category, published)
+    return FsDocument(section, title, encode_url(pdf_url), code, number, dept, year, doc_type, category, published, raw_url=pdf_url)
 
 
 def parse_listing(html: str, base_url: str, section: str) -> list[FsDocument]:

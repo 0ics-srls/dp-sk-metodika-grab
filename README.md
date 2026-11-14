@@ -34,6 +34,10 @@ Allowed hosts: `www.financnasprava.sk`, `www.mfsr.sk`, `nbs.sk`, `www.uvo.gov.sk
 mfsr.sk disallows `/components` and `/thumb` (refused, skip reason `robots`, the rule is logged); nbs.sk allows all; financnasprava.sk has no robots.txt (404);
 uvo.gov.sk answers `User-agent: * / Disallow: /`, so the run is refused with a `config_error` (before any request) unless `uvoRobotsAck` is true (decision D141).
 
+## Document URL encoding (v0.1.2)
+
+The URL of a Financna sprava document (`pdf_url`, `source_url` in the package) has its path percent-encoded: a space becomes `%20`, an existing `%XX` stays (no double encoding). `source_id` (decoded path slug) and `legacy_doc_id` (derived from the href as written) do not change, so a re-run creates no duplicates (D151, D156; `tests/unit/test_fs_encoding.py`). MF SR, NBS and UVO URLs are untouched.
+
 ## Tests
 
 ```
